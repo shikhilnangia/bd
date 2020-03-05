@@ -1,0 +1,752 @@
+Write the code in Vi Editor
+
+First go to http://generatedata.com/
+generatedata.com
+Whatever text you enter into the options text field will be used to generate telephone numbers. Capital X's will be converted to a random number between 1 and 9; lower-case x's will be converted to a random number between 0 and 9.. Select one of the values in the example dropdown for some ideas.
+generatedata.com
+to create custs.csv file.
+ 
+
+
+
+ 
+
+ 
+
+Save the custs.csv file on Cloudera Desktop -> cloudera home folder (click right copy – paste )
+Create new pig file on vi editor : vim exp.pig
+In the vi editor type the following code:
+cust = load '/home/cloudera/custs.csv' using PigStorage(',') as (custid:chararray, firstname:chararray, surname:chararray, age:long, profession:chararray);
+
+dump cust;
+
+To execute : Type on vi editor :  pig -x local exp.pig
+Ouput : Loading the data in the cust variable. Dump is used to display the output on the screen.
+ 
+
+Success!
+
+ 
+
+Job Stats (time in seconds):
+
+JobId      Alias      Feature  Outputs
+
+job_local749410267_0001 cust        MAP_ONLY              file:/tmp/temp457969645/tmp-607894350,
+
+ 
+
+Input(s):
+
+Successfully read records from: "/home/cloudera/custs.csv"
+
+ 
+
+Output(s):
+
+Successfully stored records in: "file:/tmp/temp457969645/tmp-607894350"
+
+ 
+
+Job DAG:
+
+job_local749410267_0001
+
+ 
+
+ 
+
+^[[A2020-02-08 22:17:31,904 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - Success!
+
+2020-02-08 22:17:31,912 [main] INFO  org.apache.hadoop.conf.Configuration.deprecation - fs.default.name is deprecated. Instead, use fs.defaultFS
+
+2020-02-08 22:17:31,912 [main] INFO  org.apache.hadoop.conf.Configuration.deprecation - mapred.job.tracker is deprecated. Instead, use mapreduce.jobtracker.address
+
+2020-02-08 22:17:31,913 [main] WARN  org.apache.pig.data.SchemaTupleBackend - SchemaTupleBackend has already been initialized
+
+2020-02-08 22:17:31,972 [main] INFO  org.apache.hadoop.mapreduce.lib.input.FileInputFormat - Total input paths to process : 1
+
+2020-02-08 22:17:31,972 [main] INFO  org.apache.pig.backend.hadoop.executionengine.util.MapRedUtil - Total input paths to process : 1
+
+(custid,firstname,surname,,Profession)
+
+(1000,Murphy,Moss,26,Legal Department)
+
+(1001,Nasim,Porter,27,Quality Assurance)
+
+(1002,Tanek,Gomez,49,Media Relations)
+
+(1003,Hiroko,Palmer,28,Asset Management)
+
+(1004,Whoopi,Douglas,57,Public Relations)
+
+(1005,Mark,Hodges,31,Advertising)
+
+(1006,Callum,Winters,32,Advertising)
+
+(1007,Carla,Ryan,55,Customer Service)
+
+(1008,Noelani,Sutton,34,Human Resources)
+
+(1009,Ivory,Cote,33,Payroll)
+
+(1010,Ferris,Anderson,38,Tech Support)
+
+(1011,Raja,Jarvis,46,Advertising)
+
+(1012,Magee,Ruiz,47,Accounting)
+
+(1013,Paul,Cantu,41,Customer Service)
+
+(1014,Jin,Mcdaniel,26,Media Relations)
+
+(1090,Troy,Heath,38,Customer Service)
+
+(1091,Keefe,Mccall,56,Research and Development)
+
+(1092,Jael,Conner,54,Payroll)
+
+(1093,Quynn,Floyd,33,Accounting)
+
+(1094,Dustin,Dunlap,51,Customer Service)
+
+(1095,Virginia,Mclaughlin,43,Finances)
+
+(1096,Zelenia,Baxter,28,Human Resources)
+
+(1097,Boris,Mcpherson,49,Asset Management)
+
+(1098,Darius,Torres,28,Advertising)
+
+(1099,Rana,Craft,56,Human Resources)
+
+Now we are Group the customers by profession
+cust = load '/home/cloudera/custs.csv' using PigStorage(',') as (custid:chararray, firstname:chararray, surname:chararray, age:long, profession:chararray);
+
+groupbyprofession = group cust by profession;
+
+illustrate groupbyprofession;
+
+To execute : Type on vi editor :  pig -x local exp.pig
+Output:
+
+-------------------------------------------------------------------------------------------------------------------------
+
+| cust     | custid:chararray   | firstname:chararray   | surname:chararray    | age:long    | profession:chararray     |
+
+-------------------------------------------------------------------------------------------------------------------------
+
+|          | 1091               | Keefe                 | Mccall               | 56          | Research and Development |
+
+|          | 1022               | Wynter                | Allen                | 52          | Research and Development |
+
+-------------------------------------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+| groupbyprofession     | group:chararray          | cust:bag{:tuple(custid:chararray,firstname:chararray,surname:chararray,age:long,profession:chararray)}                    |
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+|                       | Research and Development | {(1091, ..., Research and Development), (1022, ..., Research and Development)}                                            |
+
+ 
+
+Now we are going to count the groups by profession
+cust = load '/home/cloudera/custs.csv' using PigStorage(',') as (custid:chararray, firstname:chararray, surname:chararray, age:long, profession:chararray);
+
+groupbyprofession = group cust by profession;
+
+countbyprofession = foreach groupbyprofession generate group, COUNT(cust);
+
+dump countbyprofession;
+
+ 
+
+Output:
+
+2020-02-08 22:49:09,753 [main] INFO  org.apache.hadoop.mapreduce.lib.input.FileInputFormat - Total input paths to process : 1
+
+2020-02-08 22:49:09,753 [main] INFO  org.apache.pig.backend.hadoop.executionengine.util.MapRedUtil - Total input paths to process : 1
+
+(Payroll,6)
+
+(Finances,11)
+
+(Accounting,10)
+
+(Profession,1)
+
+(Advertising,6)
+
+(Tech Support,4)
+
+(Human Resources,6)
+
+(Media Relations,7)
+
+(Asset Management,10)
+
+(Customer Service,6)
+
+(Legal Department,8)
+
+(Public Relations,6)
+
+(Quality Assurance,9)
+
+(Customer Relations,3)
+
+(Sales and Marketing,5)
+
+(Research and Development,3)
+
+ Code:
+cust = load '/home/cloudera/custs.csv' using PigStorage(',') as (custid:chararray, firstname:chararray, surname:chararray, age:long, profession:chararray);
+
+groupbyprofession = group cust by profession;
+
+countbyprofession = foreach groupbyprofession generate group, COUNT(cust);
+
+ord = ORDER countbyprofession by $1 DESC;
+
+dump ord;
+
+ 
+
+ 
+
+$0 represent the first column in the tuple
+
+$1 represent the second column in the tuple
+
+ 
+
+ 
+
+Output in Descending Order Now
+
+(Finances,11)
+
+(Accounting,10)
+
+(Asset Management,10)
+
+(Quality Assurance,9)
+
+(Legal Department,8)
+
+(Media Relations,7)
+
+(Payroll,6)
+
+(Public Relations,6)
+
+(Customer Service,6)
+
+(Human Resources,6)
+
+(Advertising,6)
+
+(Sales and Marketing,5)
+
+(Tech Support,4)
+
+(Research and Development,3)
+
+(Customer Relations,3)
+
+(Profession,1)
+
+ 
+
+Create a database for Join operation (To Be Continued…)
+
+ 
+
+Tcnid , date(mm/dd/yyyy) , custid (same as above table , with same limits) , price (currency, 2 decimal place format) , category , product , city , state , modeofpayment (yes/no)
+
+
+------------------------------------------------------
+------------------------------------------------------
+
+cust = load '/home/cloudera/custs.csv' using PigStorage(',') as (custid:chararray, firstname:chararray, surname:chararray, age:long, profession:chararray);
+
+groupbyprofession = group cust by profession;
+
+countbyprofession = foreach groupbyprofession generate group, COUNT(cust);
+
+ord = ORDER countbyprofession by $1 DESC;
+
+dump ord;
+
+ 
+
+ 
+
+Help on Terminal:
+
+man hive      (Manual)
+
+man pig
+
+ 
+
+Copy txn.csv file in Cloudera Home
+Use the code to
+ 
+
+#cust = load '/home/cloudera/custs.csv' using PigStorage(',') as (custid:chararray, firstname:chararray, surname:chararray, age:long, profession:chararray);
+
+#groupbyprofession = group cust by profession;
+
+#countbyprofession = foreach groupbyprofession generate group, COUNT(cust);
+
+#ord = ORDER countbyprofession by $1 DESC;
+
+#dump ord;
+
+ 
+
+txn = load '/home/cloudera/trans.csv' using PigStorage(',') as (transactionid:chararray,date:chararray, custid:chararray, price:double,category:chararray,product:chararray,city:chararray,state:chararray, modeofpayment:chararray);
+
+dump txn;
+
+ 
+
+   Here we are grouping Transaction id by custid and finding there total sales
+ cust = load '/home/cloudera/custs.csv' using PigStorage(',') as (custid:chararray, firstname:chararray, surname:chararray, age:long, profession:chararray);
+
+groupbyprofession = group cust by profession;
+
+countbyprofession = foreach groupbyprofession generate group, COUNT(cust);
+
+ord = ORDER countbyprofession by $1 DESC;
+
+dump ord;
+
+ 
+
+txn = load '/home/cloudera/trans.csv' using PigStorage(',') as (transactionid:chararray, date:chararray, custid:chararray, price:double, category:chararray, product:chararray, city:chararray,state:chararray, modeofpayment:chararray);
+
+ 
+
+txnbycust = group txn by custid;
+
+spendbycust = foreach txnbycust generate group as customer_id, SUM(txn.price) as totalsales;
+
+ 
+
+dump spendbycust;
+
+ 
+
+Finding Top 10 Custs
+(1065,99.75)
+
+(1078,97.74)
+
+(1023,97.35)
+
+(1077,95.62)
+
+(1036,94.16)
+
+(1032,91.53)
+
+(1063,88.61)
+
+(1067,88.46)
+
+(1013,86.5)
+
+(1069,86.37)
+
+ 
+
+cust = load '/home/cloudera/custs.csv' using PigStorage(',') as (custid:chararray, firstname:chararray, surname:chararray, age:long, profession:chararray);
+
+groupbyprofession = group cust by profession;
+
+countbyprofession = foreach groupbyprofession generate group, COUNT(cust);
+
+ord = ORDER countbyprofession by $1 DESC;
+
+dump ord;
+
+ 
+
+txn = load '/home/cloudera/trans.csv' using PigStorage(',') as (transactionid:chararray, date:chararray, custid:chararray, price:double, category:chararray, product:chararray, city:chararray,state:chararray, modeofpayment:chararray);
+
+ 
+
+txnbycust = group txn by custid;
+
+spendbycust = foreach txnbycust generate group as customer_id, SUM(txn.price) as totalsales;
+
+ 
+
+custorder = order spendbycust by $1 desc;
+
+ 
+
+top10cust = limit custorder 10;
+
+ 
+
+dump top10cust;
+
+ 
+
+     Joining the tables top 10  (cust and trans )
+ ------
+Use Complete Code
+------
+cust = load '/home/cloudera/custs.csv' using PigStorage(',') as (custid:chararray, firstname:chararray, surname:chararray, age:long, profession:chararray);
+
+groupbyprofession = group cust by profession;
+
+countbyprofession = foreach groupbyprofession generate group, COUNT(cust);
+
+ord = ORDER countbyprofession by $1 DESC; 
+
+txn = load '/home/cloudera/trans.csv' using PigStorage(',') as (transactionid:chararray, date:chararray, custid:chararray, price:double, category:chararray, product:chararray, city:chararray,state:chararray, modeofpayment:chararray);
+
+txnbycust = group txn by custid;
+
+spendbycust = foreach txnbycust generate group as customer_id, SUM(txn.price) as totalsales;
+
+custorder = order spendbycust by $1 desc;
+
+top10cust = limit custorder 10;
+top10join = join top10cust by $0, cust by $0;
+dump top10join;
+
+ ---------
+
+(1013,86.5,1013,Paul,Cantu,41,Customer Service)
+
+(1023,97.35,1023,Dane,Hayes,55,Quality Assurance)
+
+(1032,91.53,1032,Penelope,Figueroa,44,Asset Management)
+
+(1036,94.16,1036,Shaeleigh,Macias,35,Advertising)
+
+(1063,88.61,1063,Reed,Douglas,58,Payroll)
+
+(1065,99.75,1065,Alvin,Mcintyre,35,Legal Department)
+
+(1067,88.46,1067,Kirestin,Olsen,41,Public Relations)
+
+(1069,86.37,1069,Arden,Morin,44,Finances)
+
+(1077,95.62,1077,Isabelle,Vincent,58,Legal Department)
+
+(1078,97.74,1078,Hashim,Chen,41,Accounting)
+
+ 
+-----------------------
+Arranging in Order   $$
+ ------------------------
+
+(1013,Paul,Cantu,41,Customer Service,86.5)
+
+(1023,Dane,Hayes,55,Quality Assurance,97.35)
+
+(1032,Penelope,Figueroa,44,Asset Management,91.53)
+
+(1036,Shaeleigh,Macias,35,Advertising,94.16)
+
+(1063,Reed,Douglas,58,Payroll,88.61)
+
+(1065,Alvin,Mcintyre,35,Legal Department,99.75)
+
+(1067,Kirestin,Olsen,41,Public Relations,88.46)
+
+(1069,Arden,Morin,44,Finances,86.37)
+
+(1077,Isabelle,Vincent,58,Legal Department,95.62)
+
+(1078,Hashim,Chen,41,Accounting,97.74)
+
+ 
+
+cust = load '/home/cloudera/custs.csv' using PigStorage(',') as (custid:chararray, firstname:chararray, surname:chararray, age:long, profession:chararray);
+
+groupbyprofession = group cust by profession;
+
+countbyprofession = foreach groupbyprofession generate group, COUNT(cust);
+
+ord = ORDER countbyprofession by $1 DESC;
+
+dump ord;
+
+ 
+
+txn = load '/home/cloudera/trans.csv' using PigStorage(',') as (transactionid:chararray, date:chararray, custid:chararray, price:double, category:chararray, product:chararray, city:chararray,state:chararray, modeofpayment:chararray);
+
+ 
+
+txnbycust = group txn by custid;
+
+spendbycust = foreach txnbycust generate group as customer_id, SUM(txn.price) as totalsales;
+
+ 
+
+custorder = order spendbycust by $1 desc;
+
+ 
+
+top10cust = limit custorder 10;
+
+ 
+
+top10join = join top10cust by $0, cust by $0;
+
+ 
+
+top10 = foreach top10join generate $0, $3, $4, $5, $6, $1;
+
+dump top10;
+
+-----
+Now we want to order in desc
+----------------------------------
+
+(1065,Alvin,Mcintyre,35,Legal Department,99.75)
+
+(1078,Hashim,Chen,41,Accounting,97.74)
+
+(1023,Dane,Hayes,55,Quality Assurance,97.35)
+
+(1077,Isabelle,Vincent,58,Legal Department,95.62)
+ 
+
+
+
+cust = load '/home/cloudera/custs.csv' using PigStorage(',') as (custid:chararray, firstname:chararray, surname:chararray, age:long, profession:chararray);
+
+groupbyprofession = group cust by profession;
+
+countbyprofession = foreach groupbyprofession generate group, COUNT(cust);
+
+ord = ORDER countbyprofession by $1 DESC;
+
+dump ord;
+
+ 
+
+txn = load '/home/cloudera/trans.csv' using PigStorage(',') as (transactionid:chararray, date:chararray, custid:chararray, price:double, category:chararray, product:chararray, city:chararray,state:chararray, modeofpayment:chararray);
+
+ 
+
+txnbycust = group txn by custid;
+
+spendbycust = foreach txnbycust generate group as customer_id, SUM(txn.price) as totalsales;
+
+ 
+
+custorder = order spendbycust by $1 desc;
+
+ 
+
+top10cust = limit custorder 10;
+
+ 
+
+top10join = join top10cust by $0, cust by $0;
+
+ 
+
+top10 = foreach top10join generate $0, $3, $4, $5, $6, $1;
+
+ 
+
+top11 = order top10 by $5 desc;
+
+ 
+
+dump top11;
+
+
+*******************************************************************************
+*******************************************************************************
+
+pig :: wordcount 
+----------------
+STEP1: save the input_file in Hue --> Upload File
+
+lines= LOAD '/user/cloudera/input_file.txt' AS (line:chararray);
+words= FOREACH lines GENERATE FLATTEN(TOKENIZE(line)) as word;
+grouped= GROUP words by word;
+wordcount= FOREACH grouped GENERATE group, COUNT(words);
+DUMP wordcount;  
+
+*******************************************************************************
+*******************************************************************************
+
+pig :: EXPORT wordcount.out file
+---------------------------------- 
+
+Now, export the output in Table at 'HDFS Mozilla' as:
+
+lines= LOAD '/user/cloudera/input_file.txt' AS (line:chararray);
+words= FOREACH lines GENERATE FLATTEN(TOKENIZE(line)) as word;
+grouped= GROUP words by word;
+wordcount= FOREACH grouped GENERATE group, COUNT(words);
+STORE wordcount INTO './wordcount.out';    
+-----------------
+
+
+--------------------------------------------------------------------------------
+WORDCOUNT: 'Budget Speech 2020'
+--------------------------------------------------------------------------------
+
+Create a folder inside cloudera home with name: 'WordCountTutorial' and iside this empty folder create two folders:
+folder1 = 'input_data' and folder2 = 'tutorial_classes' / 'classes' & also copy-paste the file 'Wordcount.java' here
+--------------------------------------------------------------------------------
+
+CREATING DIRECTORY IN ONLINE HADOOP FOR THE FILENAME 'budgetwordcount' and 'budgetwordcount/input' ::
+
+hadoop fs -mkdir /budgetwordcount
+hadoop fs -mkdir /budgetwordcount/input_data
+--------------------------------------------------------------------------------
+
+Go to Browser:
+localhost:50070
+--------------------------------------------------------------------------------
+
+PUTTING 'Budget_Speech_2020.pdf' FILE IN THE HADOOP ONLINE DIRECTORY::
+
+hadoop fs -put '/home/cloudera/WordCountTutorialPractice/input_data/budget_speech.txt' /WordCountTutorialPractice/input_data
+
+---------------------------------------------------------------------------------
+
+RUNNING THE JAVA FILE AND STORING THE THREE SOURCE SPLIT FILE IN FOLDER NAMED 'class_':
+
+export HADOOP_CLASSPATH=$(hadoop classpath)
+echo $HADOOP_CLASSPATH
+javac -classpath ${HADOOP_CLASSPATH} -d '/home/cloudera/budgetwordcount/tutorial_classes' '/home/cloudera/budgetwordcount/WordCount.java' 
+---------------------------------------------------------------------------------
+
+PUT THREE CLASS OUTPUT FILE IN ONE JAR FILE NAMED AS 'budgetjarfile' INSIDE 'budgetwordcount':
+
+ls
+cd WordCountTutorial
+jar -cvf practice.jar -C tutorial_classes/ .
+
+----------------------------------------------------------------------------------
+
+RUNNING THIS JAR FILE IN ONLINE HADOOP ENVIRONMENT AND STORING THE OUTOUT:
+
+hadoop jar '/home/cloudera/WordCountTutorialPractice/practice.jar' WordCount /WordCountTutorialPractice/input_data /WordCountTutorialPractice/output
+
+
+----------------------------------------------------------------------------------
+
+VIEWING THE OUTPUT ON SCREEN
+
+[cloudera@quickstart WordCountTutorialPractice]$ hadoop dfs -cat /WordCountTutorialPractice/output/*
+
+
+----------------------------------------------------------------------------------
+
+Output file can be seen online also @ localhost:50070
+
+
+
+********
+********
+********
+
+[cloudera@quickstart ~]$ hadoop version
+[cloudera@quickstart ~]$ javac -version
+[cloudera@quickstart ~]$ pwd (TELLS THE CURRENT DIRECTORY)
+[cloudera@quickstart ~]$ export HADOOP_CLASSPATH=$(hadoop classpath)
+[cloudera@quickstart ~]$ echo $HADOOP_CLASSPATH
+[cloudera@quickstart ~]$ hadoop fs -mkdir /WordCountTutorial (FS=FILE SYSTEM)
+[cloudera@quickstart ~]$ hadoop fs -mkdir /WordCountTutorial/Input
+ 
+Go to Browser:
+localhost:50070
+Then Go to Utilities -> There we will see the directory created above.
+ 
+[cloudera@quickstart ~]$ hadoop fs -put<INPUT_FILE><HDFC_INPUT_DIRECTORY>  (To upload the input file to Hadoop Directory)
+[cloudera@quickstart ~]$ hadoop fs -put '/home/cloudera/WordCountTutorial/input_data/input_txt.txt' /WordCountTutorial/Input 
+[cloudera@quickstart ~]$ cd WordCountTutorial
+[cloudera@quickstart WordCountTutorial]$ javac -classpath ${HADOOP_CLASSPATH} -d '/home/cloudera/WordCountTutorial/tutorial_classes' '/home/cloudera/WordCountTutorial/WordCount.java' 
+ 
+We will get three files inside /WordCountTutorial/tutorial_classes folder.
+ 
+[cloudera@quickstart WordCountTutorial]$ jar -cvf firstTutorial.jar -C tutorial_classes/ .
+(Putting the three files generated above inside a JAR file at the desired location)
+ 
+[cloudera@quickstart WordCountTutorial]$ hadoop jar '/home/cloudera/WordCountTutorial/firstTutorial.jar' /WordCountTutorial/Output
+(Run the jar file on HAdoop)
+ 
+[cloudera@quickstart WordCountTutorial]$ hadoop jar '/home/cloudera/WordCountTutorial/firstTutorial.jar' WordCount /WordCountTutorial/Input /WordCountTutorial/Output1
+(WordCount is the class name which is getting linked from Input to output folder).
+ 
+[cloudera@quickstart WordCountTutorial]$ hadoop dfs -cat /WordCountTutorial/Output1/*
+(This will give us the output in the output directory and show the answers in the terminal as well)
+
+
+***
+***
+
+hadoop version 
+javac -version -> make sure java is running correctly
+
+pwd -> present working directory 
+
+[cloudera@quickstart ~]$ export HADOOP_CLASSPATH=$(hadoop classpath)
+[cloudera@quickstart ~]$ echo $HADOOP_CLASSPATH
+[cloudera@quickstart ~]$ hadoop fs -mkdir /WordCountTutorial
+
+localhost:50070 -> to check the made directories
+
+hadoop fs -put <INPUT_FILE><HDFS_INPUT_DIRECTORY> -> to upload the input file to the directory
+[cloudera@quickstart ~]$ hadoop fs -put '/home/cloudera/WordCountTutorial/input_data/input_txt.txt' /WordCountTutorial/Input
+
+[cloudera@quickstart ~]$ cd WordCountTutorial -> to change the current directory to specified directory
+
+javac -classpath $(HADOOP_CLASSPATH) -d<CLASSES_FOLDER> <TUTORIAL_JAVA_FILE>
+[cloudera@quickstart WordCountTutorial]$ javac -classpath ${HADOOP_CLASSPATH} -d '/home/cloudera/WordCountTutorial/tutorial_classes' '/home/cloudera/WordCountTutorial/WordCount.java' 
+
+jar -cvf <JAR_FILE_NAME> -C <CLASSES_FOLDER> -> put the output files (inside the tutorial classes folder) in one jar file
+[cloudera@quickstart WordCountTutorial]$ jar -cvf firstTutorial.jar -C tutorial_classes/ .
+
+hadoop jar <JAR_FILE> <CLASS_NAME> <HDFS_INPUT_DIRECTORY> <HDFS_OUTPUT_DIRECTORY> -> to run the jar file on Hadoop on input stored in Input directory
+[cloudera@quickstart WordCountTutorial]$ hadoop jar '/home/cloudera/WordCountTutorial/firstTutorial.jar' WordCount /WordCountTutorial/Input /WordCountTutorial/Output1
+
+[cloudera@quickstart WordCountTutorial]$ hadoop fs -rm -r /WordCountTutorial/Output -> to remove directory named Output
+
+hadoop dfs -cat <HDFS_OUTPUT_DIRECTORY> -> Output
+[cloudera@quickstart WordCountTutorial]$ hadoop dfs -cat /WordCountTutorial/Output1/*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
